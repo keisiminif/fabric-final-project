@@ -1,0 +1,13 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/variableLibrary/definition/valueSet/1.0.0/schema.json",
+  "name": "PROD",
+  "variableOverrides": [
+    {
+      "name": "Trial_Lakehouse_Ref",
+      "value": {
+        "itemId": "4f686ba7-0471-4c31-a99f-82c8d1454557",
+        "workspaceId": "f05fb649-cb54-43fb-b27d-d00d4e6612e8"
+      }
+    }
+  ]
+}
