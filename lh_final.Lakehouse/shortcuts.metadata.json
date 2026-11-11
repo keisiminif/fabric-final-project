@@ -17,8 +17,8 @@
       "type": "OneLake",
       "oneLake": {
         "path": "Tables/dbo/silver_clienti",
-        "itemId": "bff911a6-05e4-4867-a5dc-962914f8494f",
-        "workspaceId": "886d3de4-c827-4caf-afc7-cccd4ebf35e7"
+        "itemId": "6af8f567-bbcb-44cc-b60b-60408d28ae4c",
+        "workspaceId": "cd5d7f99-489b-4961-8a9f-d87075d6ad29"
       }
     }
   }
