@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "VariableLibrary",
+    "displayName": "Config_CrossDomain"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "75ebadd3-f225-4330-98e2-dad299253713"
+  }
+}
