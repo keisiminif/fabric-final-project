@@ -1,0 +1,25 @@
+[
+  {
+    "name": "dbo_1",
+    "path": "/Tables",
+    "target": {
+      "type": "OneLake",
+      "oneLake": {
+        "path": "Tables/dbo",
+        "itemReference": "$(/**/Config_CrossDomain/Trial_Lakehouse_Ref)"
+      }
+    }
+  },
+  {
+    "name": "silver_clienti",
+    "path": "/Tables/dbo",
+    "target": {
+      "type": "OneLake",
+      "oneLake": {
+        "path": "Tables/dbo/silver_clienti",
+        "itemId": "6af8f567-bbcb-44cc-b60b-60408d28ae4c",
+        "workspaceId": "cd5d7f99-489b-4961-8a9f-d87075d6ad29"
+      }
+    }
+  }
+]

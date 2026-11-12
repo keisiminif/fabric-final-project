@@ -1,0 +1,31 @@
+name: Nightly Deploy to TEST Workspace
+
+on:
+  schedule:
+    # Formato Cron: Minuto Ora Giorno Mese GiornoSettimana
+    # "0 2 * * *" significa ogni giorno alle 2:00 del mattino (UTC)
+    - cron: '0 2 * * *'
+  # "workflow_dispatch" permette di lanciare lo script anche a mano per fare dei test
+  workflow_dispatch: 
+
+jobs:
+  Deploy-To-Fabric-Test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Autenticazione su Azure
+        uses: azure/login@v2
+        with:
+          # Le credenziali andranno salvate in modo sicuro su GitHub
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Recupero Token API Fabric
+        run: |
+          TOKEN=$(az account get-access-token --resource "https://api.fabric.microsoft.com/" --query accessToken -o tsv)
+          echo "FABRIC_TOKEN=$TOKEN" >> $GITHUB_ENV
+
+      - name: Sincronizzazione Workspace TEST
+        run: |
+          curl -X POST "https://api.fabric.microsoft.com/v1/workspaces/${{ secrets.WORKSPACE_ID_TEST }}/git/sync" \
+          -H "Authorization: Bearer ${{ env.FABRIC_TOKEN }}" \
+          -H "Content-Type: application/json" \
+          -d '{"mode":"UpdateAll"}'

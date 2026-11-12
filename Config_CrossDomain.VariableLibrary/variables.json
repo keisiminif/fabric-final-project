@@ -1,0 +1,14 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/variableLibrary/definition/variables/1.0.0/schema.json",
+  "variables": [
+    {
+      "name": "Trial_Lakehouse_Ref",
+      "note": "",
+      "type": "ItemReference",
+      "value": {
+        "itemId": "6af8f567-bbcb-44cc-b60b-60408d28ae4c",
+        "workspaceId": "cd5d7f99-489b-4961-8a9f-d87075d6ad29"
+      }
+    }
+  ]
+}
