@@ -23,6 +23,27 @@ jobs:
 
       - name: Sincronizzazione Workspace TEST
         run: |
+          CRED_PAYLOAD=$(jq -n \
+            --arg cid "${{ secrets.FABRIC_GIT_CONNECTION_ID }}" \
+            '{
+              source: "ConfiguredConnection",
+              connectionId: $cid
+            }')
+
+          CRED_RES=$(curl -s -w "\n%{http_code}" -X PATCH \
+            -H "Authorization: Bearer ${{ env.FABRIC_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d "$CRED_PAYLOAD" \
+            "https://api.fabric.microsoft.com/v1/workspaces/${{ secrets.WORKSPACE_ID_TEST }}/git/myGitCredentials")
+
+          CRED_CODE=$(echo "$CRED_RES" | tail -n1)
+          CRED_BODY=$(echo "$CRED_RES" | sed '$d')
+
+          if [ "$CRED_CODE" -ge 400 ]; then
+            echo "Errore configurazione Git credentials ($CRED_CODE): $CRED_BODY"
+            exit 1
+          fi
+
           STATUS_RES=$(curl -s -w "\n%{http_code}" \
             -H "Authorization: Bearer ${{ env.FABRIC_TOKEN }}" \
             "https://api.fabric.microsoft.com/v1/workspaces/${{ secrets.WORKSPACE_ID_TEST }}/git/status")
