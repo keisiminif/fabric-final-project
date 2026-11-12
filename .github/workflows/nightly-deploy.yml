@@ -2,10 +2,8 @@ name: Nightly Deploy to TEST Workspace
 
 on:
   schedule:
-    # Formato Cron: Minuto Ora Giorno Mese GiornoSettimana
-    # "0 2 * * *" significa ogni giorno alle 2:00 del mattino (UTC)
+    # Ogni giorno alle 2:00 del mattino (UTC)
     - cron: '0 2 * * *'
-  # "workflow_dispatch" permette di lanciare lo script anche a mano per fare dei test
   workflow_dispatch:
 
 jobs:
@@ -15,7 +13,6 @@ jobs:
       - name: Autenticazione su Azure
         uses: azure/login@v2
         with:
-          # Le credenziali andranno salvate in modo sicuro su GitHub
           creds: ${{ secrets.AZURE_CREDENTIALS }}
           allow-no-subscriptions: true
 
@@ -26,7 +23,56 @@ jobs:
 
       - name: Sincronizzazione Workspace TEST
         run: |
-          curl -X POST "https://api.fabric.microsoft.com/v1/workspaces/${{ secrets.WORKSPACE_ID_TEST }}/git/sync" \
-          -H "Authorization: Bearer ${{ env.FABRIC_TOKEN }}" \
-          -H "Content-Type: application/json" \
-          -d '{"mode":"UpdateAll"}'
+          STATUS_RES=$(curl -s -w "\n%{http_code}" \
+            -H "Authorization: Bearer ${{ env.FABRIC_TOKEN }}" \
+            "https://api.fabric.microsoft.com/v1/workspaces/${{ secrets.WORKSPACE_ID_TEST }}/git/status")
+
+          HTTP_CODE=$(echo "$STATUS_RES" | tail -n1)
+          BODY=$(echo "$STATUS_RES" | sed '$d')
+
+          if [ "$HTTP_CODE" -ge 400 ]; then
+            echo "Errore lettura Git status ($HTTP_CODE): $BODY"
+            exit 1
+          fi
+
+          WORKSPACE_HEAD=$(echo "$BODY" | jq -r '.workspaceHead')
+          REMOTE_HASH=$(echo "$BODY" | jq -r '.remoteCommitHash')
+
+          echo "Workspace Head: $WORKSPACE_HEAD"
+          echo "Remote Commit Hash: $REMOTE_HASH"
+
+          if [ "$WORKSPACE_HEAD" = "$REMOTE_HASH" ]; then
+            echo "Workspace già allineato con Git. Nessun aggiornamento necessario."
+            exit 0
+          fi
+
+          PAYLOAD=$(jq -n \
+            --arg wh "$WORKSPACE_HEAD" \
+            --arg rh "$REMOTE_HASH" \
+            '{
+              workspaceHead: $wh,
+              remoteCommitHash: $rh,
+              conflictResolution: {
+                conflictResolutionType: "Workspace",
+                conflictResolutionPolicy: "PreferRemote"
+              },
+              options: {
+                allowOverrideItems: true
+              }
+            }')
+
+          UPDATE_RES=$(curl -s -w "\n%{http_code}" -X POST \
+            -H "Authorization: Bearer ${{ env.FABRIC_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d "$PAYLOAD" \
+            "https://api.fabric.microsoft.com/v1/workspaces/${{ secrets.WORKSPACE_ID_TEST }}/git/updateFromGit")
+
+          UPDATE_CODE=$(echo "$UPDATE_RES" | tail -n1)
+          UPDATE_BODY=$(echo "$UPDATE_RES" | sed '$d')
+
+          echo "Risposta Fabric ($UPDATE_CODE): $UPDATE_BODY"
+
+          if [ "$UPDATE_CODE" -ge 400 ]; then
+            echo "Errore durante l'aggiornamento del workspace!"
+            exit 1
+          fi
