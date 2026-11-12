@@ -6,7 +6,7 @@ on:
     # "0 2 * * *" significa ogni giorno alle 2:00 del mattino (UTC)
     - cron: '0 2 * * *'
   # "workflow_dispatch" permette di lanciare lo script anche a mano per fare dei test
-  workflow_dispatch: 
+  workflow_dispatch:
 
 jobs:
   Deploy-To-Fabric-Test:
@@ -17,6 +17,7 @@ jobs:
         with:
           # Le credenziali andranno salvate in modo sicuro su GitHub
           creds: ${{ secrets.AZURE_CREDENTIALS }}
+          allow-no-subscriptions: true
 
       - name: Recupero Token API Fabric
         run: |
