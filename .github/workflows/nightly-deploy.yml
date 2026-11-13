@@ -2,8 +2,8 @@ name: Nightly Deploy to TEST Workspace
 
 on:
   schedule:
-    # Ogni giorno alle 2:00 del mattino (UTC)
-    - cron: '59 8 * * *'
+    # Orario notturno definitivo: 02:23 ora solare italiana (01:23 UTC)
+    - cron: '23 10 * * *'
   workflow_dispatch:
 
 jobs:
